@@ -1,0 +1,45 @@
+add_newline = true
+
+format = """
+[╭─](bold #FFFF66)[ ](bold #6495ED)$directory(bold #6495ED)
+[╰──](bold #FFFF66)$character
+"""
+
+[line_break]
+disabled = true
+
+[battery]
+disabled = true
+
+[character]
+success_symbol = "💜[❯](bold #FFFF66)"
+error_symbol = "💔[❯](bold #F7635D)"
+
+[git_branch]
+symbol = "🌿 "
+style = "bold #FFCB37"
+
+[git_state]
+style = "bold #6495ED"
+
+[git_status]
+conflicted = "⚡"
+ahead = "↑"
+behind = "↓"
+staged = "●"
+modified = "✎"
+renamed = "➜"
+deleted = "✖"
+untracked = "…"
+style = "bold #C7A17A"
+
+[nodejs]
+style = "bold #F2E3BC"
+
+[python]
+style = "bold #DDBEA9"
+
+[directory]
+style = "bold #6495ED"
+truncation_length = 3
+truncate_to_repo = false

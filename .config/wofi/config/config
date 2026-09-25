@@ -1,0 +1,14 @@
+show=drun
+width=500
+height=450
+always_parse_args=true
+prompt=SYSTEM_ACCESS:
+show_all=false
+term=kitty
+hide_scroll=true
+print_command=true
+insensitive=true
+columns=2
+allow_markup=true
+no_actions=true
+orientation=vertical

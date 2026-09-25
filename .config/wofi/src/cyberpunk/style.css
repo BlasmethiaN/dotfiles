@@ -1,0 +1,99 @@
+@define-color bg       #010203;
+@define-color blue     #6495ed;
+@define-color yellow   #ffff66;
+@define-color cyan     #52fff8;
+@define-color red      #f7635d;
+
+* {
+    font-family: 'JetBrains Mono Nerd Font', 'Noto Color Emoji';
+    font-size: 15px;
+    font-weight: 800;
+}
+
+window {
+    background-color: transparent;
+}
+
+#outer-box {
+    background-color: @bg;
+    padding: 2px;
+    
+    border: 1px solid @blue;
+    border-bottom: 4px solid @yellow;
+    
+    box-shadow: 0 0 15px rgba(100, 149, 237, 0.3),
+                inset 0 0 5px rgba(100, 149, 237, 0.1);
+}
+
+#inner-box {
+    background-color: @bg;
+    padding: 10px;
+    margin: 0;
+    
+    background-image: radial-gradient(rgba(100, 149, 237, 0.15) 1px, transparent 0);
+    background-size: 8px 8px;
+}
+
+#input {
+    margin: 10px 15px;
+    padding: 12px;
+    background-color: rgba(100, 149, 237, 0.05);
+    
+    border: none;
+    border-left: 4px solid @cyan;
+    border-bottom: 1px solid rgba(100, 149, 237, 0.3);
+    
+    color: @yellow;
+    text-shadow: -1px 0 @red, 1px 0 @cyan;
+}
+
+#input:focus {
+    outline: none;
+    border-left: 4px solid @yellow;
+}
+
+#entry {
+    padding: 12px;
+    margin: 2px 10px;
+}
+
+#entry:selected {
+    background: linear-gradient(90deg, rgba(100, 149, 237, 0.15) 0%, transparent 100%);
+    
+    border-left: 3px solid @red;
+}
+
+#text {
+    color: @blue;
+}
+
+#text:selected {
+    color: @yellow;
+    text-shadow: 2px 0 @red, -2px 0 @cyan;
+}
+
+#scroll { 
+    border: none; 
+}
+scrollbar { 
+    opacity: 0; 
+    min-width: 0;
+    min-height: 0;
+}
+
+#input image {
+    color: @red;
+    filter: drop-shadow(0 0 4px rgba(247, 99, 93, 0.8));
+    padding-right: 10px;
+    transition: all 0.2s;
+}
+
+#input image:hover {
+    color: @yellow;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 102, 0.9));
+    cursor: pointer;
+}
+
+#input * {
+    outline: none !important;
+}
