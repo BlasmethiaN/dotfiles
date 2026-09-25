@@ -1,0 +1,229 @@
+(defvar eww "eww")
+
+;; (defvar vol_reveal false)
+(deflisten vol_muted :initial "false" "scripts/mute_listen.sh")
+(deflisten notif_list :initial "[]"
+  "scripts/notif_daemon.py")
+
+(defpoll time :interval "10s"
+  "date '+%a, %d %b %H:%M'")
+
+(defpoll network :interval "10s"
+  "scripts/network.sh")
+
+(deflisten volume :initial "0" "scripts/volume.sh")
+(deflisten media :initial '{"status": "Stopped", "text": "LOADING...", "icon": "󰐊"}'
+  "python3 scripts/marquee.py")
+
+(deflisten workspaces_mon1 :initial "[]" "scripts/workspaces.sh HDMI-A-1")
+(deflisten workspaces_mon2 :initial "[]" "scripts/workspaces.sh DP-1")
+
+;; --- WIDGETY ---
+
+(defwidget network_widget []
+  (eventbox :onclick "nm-connection-editor &"
+    (box :class "module network"
+         :space-evenly false
+         (label :class "icon" 
+                :text {network =~ "Wired" ? "󰈀 " : " "})
+         (label :text network))))
+
+(defwidget workspace_list [workspace_data]
+  (box :class "module workspaces"
+       :space-evenly false
+       :valign "center"
+       (for ws in workspace_data
+         (button :onclick "hyprctl dispatch workspace ${ws.id}"
+           (box :valign "center" 
+                :halign "center"
+                :class "dot ${ws.occupied ? 'occupied' : ''} ${ws.active ? 'active' : ''}")))))
+
+(defwidget volume_widget []
+  (eventbox :onscroll "scripts/vol_osd.sh {} &"
+            :class "volume-eventbox"
+    (box :class "module" 
+         :space-evenly false
+      (label :class "icon" 
+             :style {vol_muted == "true" ? "color: #F7635D; text-shadow: 0 0 5px #F7635D;" : ""}
+             :text {vol_muted == "true" ? " " : " "})
+      (label :text {vol_muted == "true" ? "MUTED" : "${volume}%"}
+             :class {vol_muted == "true" ? "muted-text" : ""})
+    )
+  ))
+
+
+(defwidget music [monitor_id]
+  (eventbox :onscroll "echo {} | sed -e 's/up/next/g' -e 's/down/previous/g' | xargs -I {} playerctl -p ${media.name} {}"
+            :onrightclick "playerctl -p ${media.name} stop"
+    (box :class "module media"
+         :orientation "h"
+         :space-evenly false
+         :width 330
+      
+      (label :class "icon" :text {media.status == "Playing" ? "󰝚 " : "󰏤 "})
+      
+      (label :class {media.active ? "" : "dead"}
+             :text {media.text} 
+             :halign "start"
+             :width 300
+             :limit-width 40))))
+
+;; --- MEDIA HUD WINDOWS DISABLED ---
+
+; (defwidget media_hud_content []
+;   (box :class "hud-card" :orientation "v" :space-evenly false
+;     (box :space-evenly true :class "hud-header"
+;       (label :text "󰓠 SIGNAL_STRENGTH: NOMINAL" :class "hud-status" :halign "start")
+;       (label :text "ID: 77-HL1NK0" :class "hud-status" :halign "end"))
+;     (box :class "hud-separator")
+;     (box :orientation "v" :space-evenly false :class "hud-body" :style "margin: 5px 0;"
+;       (label :text "NOW_PLAYING" :class "hud-label-tiny" :halign "start")
+;       (label :text {media.text} 
+;             :class "hud-title" 
+;             :halign "start"
+;             :width 320
+;             :xalign 0))
+;     (box :class "hud-controls" :halign "center" :spacing 20
+;       (button :onclick "playerctl -p ${media.name} previous" :class "hud-btn" "󰒮")
+;       (button :onclick "playerctl -p ${media.name} play-pause" :class "hud-btn-play" {media.icon})
+;       (button :onclick "playerctl -p ${media.name} next" :class "hud-btn" "󰒭")
+;     )
+;     (box :class "hud-separator")
+;     (box :space-evenly false
+;       (label :text "SECURE_CONNECTION_V2.1" :class "hud-status" :style "font-size: 8px; opacity: 0.5;")
+;       (box :hexpand true)
+;       (label :text "SOURCE_MULTI_LINK" :class "hud-status" :style "font-size: 8px; color: #FFFF66;"))))
+
+; (defwindow media_hud_mon1 :monitor 0 :stacking "overlay"
+;   :geometry (geometry :x "145px" :y "5px" :width "350px" :height "150px" :anchor "top left")
+;   (media_hud_content))
+
+; (defwindow media_hud_mon2 :monitor 1 :stacking "overlay"
+;   :geometry (geometry :x "235px" :y "5px" :width "350px" :height "150px" :anchor "top left")
+;   (media_hud_content))
+
+; (defwindow media_hud_closer_mon1 :monitor 0 :stacking "fg" :focusable false
+;   :geometry (geometry :x "0px" :y "0px" :width "100%" :height "100%")
+;   (eventbox :onclick "eww close media_hud_mon1 media_hud_closer_mon1"))
+
+; (defwindow media_hud_closer_mon2 :monitor 1 :stacking "fg" :focusable false
+;   :geometry (geometry :x "0px" :y "0px" :width "100%" :height "100%")
+;   (eventbox :onclick "eww close media_hud_mon2 media_hud_closer_mon2"))
+
+;; --- NOTIFICATION (LEAVING ACTIVE) ---
+
+(defwidget notif_entry [notif]
+  (box :class "notif-container"
+       :orientation "v"
+       :space-evenly false
+    (box :class "notif-card"
+         :orientation "v"
+         :space-evenly false
+      (box :class "notif-header"
+           :space-evenly false
+        (label :class "notif-pill" :text "INCOMING")
+        (label :class "notif-app" :text {notif.app} :hexpand true :halign "start" :limit-width 20))
+      
+      (box :class "notif-body"
+           :orientation "v"
+           :space-evenly false
+        (label :class "notif-title" 
+               :text {notif.summary} 
+               :halign "start" 
+               :wrap true
+               :limit-width 35)
+        (label :class "notif-text" 
+               :text {replace(notif.body, "\\n", " ")} 
+               :halign "start" 
+               :wrap true 
+               :limit-width 80
+               :visible {notif.body != ""}))
+      
+      (box :class "notif-footer"
+           :space-evenly false
+        (label :class "notif-pill" :text "ACK_REQUIRED")
+        (label :class "notif-time" :text {notif.time} :hexpand true :halign "start")
+        (button :class "notif-close"
+                :onclick "dbus-send --session --type=method_call --dest=org.freedesktop.Notifications /org/freedesktop/Notifications org.freedesktop.Notifications.CloseNotification uint32:${notif.id}"
+                "ACK")))))
+
+(defwindow notif_stack
+  :monitor 1
+  :stacking "overlay"
+  :exclusive false
+  :focusable false
+  :namespace "eww-notifs"
+  :geometry (geometry :x "20px" :y "70px" :width "350px" :anchor "top right")
+  (box :orientation "v"
+       :space-evenly false
+       :class "notif-root"
+    (for entry in notif_list
+      (notif_entry :notif entry))
+  )
+)
+
+;; --- VOLUME HUD DISABLED ---
+
+; (defwidget volume_hud_content []
+;   (box :class "vol-hud-card" :orientation "v" :space-evenly false :halign "center"
+;     (label :text "SEC_04" :halign "center" :style "font-size: 6px; color: #6495ED; opacity: 0.5;")
+;     (label :text {vol_muted == "true" ? "SYSTEM_MUTED" : "SYSTEM_VOL"} 
+;            :halign "center"
+;            :class {vol_muted == "true" ? "vol-hud-label muted-text" : "vol-hud-label"})
+;     (box :class "vol-bar-container" :height 210 :width 20 :orientation "v" :space-evenly false :halign "center"
+;       (box :vexpand true)
+;       (box :class {vol_muted == "true" ? "vol-bar-fill-muted" : "vol-bar-fill"} 
+;            :height {volume * 2} 
+;            :width 20 :halign "center" :orientation "v" :space-evenly false
+;         (box :class {vol_muted == "true" ? "vol-indicator-line muted" : "vol-indicator-line"})))
+;     (label :text {vol_muted == "true" ? "MUTED" : "${volume}%"} 
+;            :halign "center"
+;            :class {vol_muted == "true" ? "vol-hud-value muted-text" : "vol-hud-value"})
+;     (label :text {vol_muted == "true" ? "CRITICAL_ERR" : "LINK_STABLE"} 
+;            :halign "center"
+;            :class {vol_muted == "true" ? "vol-hud-subtext error" : "vol-hud-subtext"})))
+
+; (defwindow vol_hud_mon1
+;   :monitor 1
+;   :stacking "overlay"
+;   :input false
+;   :focusable "none"
+;   :visible {vol_reveal}
+;   :geometry (geometry :x "30px" :y "0px" :anchor "center right")
+;   (revealer :transition "crossfade" :reveal vol_reveal :duration "300ms"
+;     (box :class "vol-hud-container" :width 70 :height 400
+;       (volume_hud_content))))
+
+;; --- MODULE GROUPING ---
+
+(defwidget right_modules []
+  (box :orientation "h" :space-evenly false :halign "end" :spacing 10
+       (volume_widget)
+       (network_widget)
+       (box :class "module clock" :space-evenly false
+            (label :class "icon" :text " ")
+            (label :text time))))
+
+;; --- BARS ---
+
+(defwindow bar_mon1 :monitor 0 :windowtype "dock" :exclusive true
+  :geometry (geometry :x "0%" :y "10px" :width "98%" :height "52px" :anchor "top center")
+  (box :class "main-container"
+    (centerbox :orientation "h" :class "bar-inner"
+      (box :halign "start" :space-evenly false :spacing 10 :valign "center"
+            (workspace_list :workspace_data workspaces_mon1)
+            (music :monitor_id 1))
+      (box)
+      (box :halign "end" :space-evenly false :spacing 10 :valign "center"
+            (right_modules)))))
+
+(defwindow bar_mon2 :monitor 1 :windowtype "dock" :exclusive true
+  :geometry (geometry :x "0%" :y "10px" :width "98%" :height "52px" :anchor "top center")
+  (box :class "main-container"
+    (centerbox :orientation "h"
+      (box :halign "start" :space-evenly false :spacing 10 :valign "center"
+            (workspace_list :workspace_data workspaces_mon2)
+            (music :monitor_id 2))
+      (box)
+      (box :halign "end" :space-evenly false :spacing 10 :valign "center"
+            (right_modules)))))
