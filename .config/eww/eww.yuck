@@ -15,8 +15,12 @@
 (deflisten media :initial '{"status": "Stopped", "text": "LOADING...", "icon": "󰐊"}'
   "python3 scripts/marquee.py")
 
-(deflisten workspaces_mon1 :initial "[]" "scripts/workspaces.sh HDMI-A-1")
-(deflisten workspaces_mon2 :initial "[]" "scripts/workspaces.sh DP-1")
+(deflisten workspaces_mon1 :initial "[]" "scripts/workspaces.sh 0")
+(deflisten workspaces_mon2 :initial "[]" "scripts/workspaces.sh 1")
+
+(defpoll battery :interval "30s"
+  :initial '{"present": false, "capacity": 0, "status": "Unknown"}'
+  "bash scripts/battery.sh")
 
 ;; --- WIDGETY ---
 
@@ -50,6 +54,14 @@
              :class {vol_muted == "true" ? "muted-text" : ""})
     )
   ))
+
+(defwidget battery_widget []
+  (box :class "module battery"
+       :space-evenly false
+       :visible {battery.present}
+    (label :class "icon"
+           :text {battery.status == "Charging" ? " " : "󰁹 "})
+    (label :text "${battery.capacity}%")))
 
 
 (defwidget music [monitor_id]
@@ -148,7 +160,7 @@
                 "ACK")))))
 
 (defwindow notif_stack
-  :monitor 1
+  :monitor 0
   :stacking "overlay"
   :exclusive false
   :focusable false
@@ -200,6 +212,7 @@
   (box :orientation "h" :space-evenly false :halign "end" :spacing 10
        (volume_widget)
        (network_widget)
+       (battery_widget)
        (box :class "module clock" :space-evenly false
             (label :class "icon" :text " ")
             (label :text time))))
