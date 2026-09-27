@@ -4,12 +4,12 @@
   "height": 34,
   "spacing": 8,
   "modules-left": ["hyprland/workspaces"],
-  "modules-center": ["clock"],
-  "modules-right": ["network", "pulseaudio", "battery", "tray"],
+  "modules-center": [],
+  "modules-right": ["network", "pulseaudio", "battery", "tray", "clock"],
   "hyprland/workspaces": {
     "disable-scroll": true,
     "all-outputs": false,
-    "sort-by-number": true,
+    "sort-by": "number",
     "format": "{icon}",
     "format-icons": {
       "1": "01",
