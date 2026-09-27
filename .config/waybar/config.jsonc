@@ -5,7 +5,7 @@
   "spacing": 8,
   "modules-left": ["hyprland/workspaces"],
   "modules-center": [],
-  "modules-right": ["network", "pulseaudio", "battery", "tray", "clock"],
+  "modules-right": ["network", "pulseaudio", "battery", "clock"],
   "hyprland/workspaces": {
     "disable-scroll": true,
     "all-outputs": false,
@@ -56,9 +56,5 @@
     "format-plugged": "  {capacity}%",
     "format-icons": ["", "", "", "", ""],
     "tooltip-format": "{capacity}% {time} remaining"
-  },
-  "tray": {
-    "icon-size": 16,
-    "spacing": 8
   }
 }

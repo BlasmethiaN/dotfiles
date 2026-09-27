@@ -16,8 +16,7 @@ window#waybar {
 #clock,
 #network,
 #pulseaudio,
-#battery,
-#tray {
+#battery {
   margin: 4px 5px;
   padding: 3px 10px;
   background: rgba(17, 23, 35, 0.92);
@@ -94,10 +93,6 @@ window#waybar {
 
 #battery {
   color: #d47cff;
-}
-
-#tray {
-  padding: 3px 8px;
 }
 
 #network.disconnected,
