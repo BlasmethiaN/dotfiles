@@ -76,6 +76,9 @@ hl.config({
         force_default_wallpaper = -1,
         disable_hyprland_logo = false,
     },
+    render = {
+        cm_auto_hdr = 0,
+    },
 })
 
 hl.curve("easeOutQuint", { type = "bezier", points = { { 0.23, 1 }, { 0.32, 1 } } })
